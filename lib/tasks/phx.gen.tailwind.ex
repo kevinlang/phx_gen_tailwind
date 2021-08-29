@@ -47,6 +47,7 @@ defmodule Mix.Tasks.Phx.Gen.Tailwind do
     Mix.Phoenix.copy_from(paths, "priv/templates/phx.gen.tailwind", opts, files)
 
     # 2. add imports to CSS file
+    inject_css_imports()
 
     # 3. add watcher to config/dev.exs
     inject_dev_config()
@@ -104,6 +105,25 @@ defmodule Mix.Tasks.Phx.Gen.Tailwind do
       {:error, :unable_to_inject} ->
         Mix.shell().info("""
         Unable to inject updated 'assets.deploy' alias
+        """)
+    end
+  end
+
+  defp inject_css_imports() do
+    file_path = "assets/css/app.css"
+    file = File.read!(file_path)
+
+    case Injector.css_import_inject(file) do
+      {:ok, new_file} ->
+        print_injecting(file_path)
+        File.write!(file_path, new_file)
+
+      :already_injected ->
+        :ok
+
+      {:error, :unable_to_inject} ->
+        Mix.shell().info("""
+        Unable to inject Tailwindcss imports into app.css
         """)
     end
   end

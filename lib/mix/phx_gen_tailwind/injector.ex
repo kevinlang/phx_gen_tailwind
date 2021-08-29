@@ -47,6 +47,25 @@ defmodule Mix.Phx.Gen.Tailwind.Injector do
     )
   end
 
+
+
+  def css_import_inject(file) do
+    inject_unless_contains(
+      file,
+      css_import_code(),
+      # todo, avoid injecting extra newline...
+      &String.replace(&1, "@import \"./phoenix.css\";", &2)
+    )
+  end
+
+  defp css_import_code() do
+    """
+    @import "tailwindcss/base";
+    @import "tailwindcss/components";
+    @import "tailwindcss/utilities";
+    """
+  end
+
   @doc """
   Injects code unless the existing code already contains `code_to_inject`
   """
