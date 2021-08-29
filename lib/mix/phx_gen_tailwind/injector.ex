@@ -29,15 +29,27 @@ defmodule Mix.Phx.Gen.Tailwind.Injector do
     """
   end
 
+  def mix_aliases_inject(file) do
+    with {:ok, file} <- assets_deploy_inject(file),
+         {:ok, file} <- setup_alias_inject(file) do
+      {:ok, file}
+    end
+  end
+
   def assets_deploy_inject(file) do
+    inject_unless_contains(
+      file,
+      "\"cmd --cd assets npm run deploy\", ",
+
+      &Regex.replace(~r/^(.*"assets\.deploy"\: \[)(.*$)/Um, &1, "\\1#{&2}\\2", global: false)
+    )
+  end
+
+  def setup_alias_inject(file) do
     inject_unless_contains(
       file,
       ", \"cmd --cd assets npm install\"",
 
-
-      # Matches the entire line containing `anchor_line` and captures
-      # the whitespace before the anchor. In the replace string
-      #
       # * the entire matching line, sans newline and last bracket, inserted with \\1
       # * a comma is added, and appropriate newline added with \\2
       # * the actual code is injected with &2
@@ -46,8 +58,6 @@ defmodule Mix.Phx.Gen.Tailwind.Injector do
       &Regex.replace(~r/^(\s*setup\:.*)(\],|\])(\r\n|\n|$)/Um, &1, "\\1#{&2}\\2\\3", global: false)
     )
   end
-
-
 
   def css_import_inject(file) do
     inject_unless_contains(

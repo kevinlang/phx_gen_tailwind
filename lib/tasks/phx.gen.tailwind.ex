@@ -14,11 +14,6 @@ defmodule Mix.Tasks.Phx.Gen.Tailwind do
   * Add tailwind imports to your CSS file
   * Add a Tailwind watcher to your Phoenix endpoint
   * Update the `assets.deploy` mix task to include Tailwind processing
-
-  ## Installing Alpinejs
-
-  This generator can additionally install AlpineJS alongside Tailwind.
-  To do that, pass the `--alpinejs` flag.
   """
 
   use Mix.Task
@@ -36,7 +31,7 @@ defmodule Mix.Tasks.Phx.Gen.Tailwind do
     end
     # from here on, we can assume we are at the web root directory
 
-    {opts, _parsed} = OptionParser.parse!(args, strict: @switches)
+    #{opts, _parsed} = OptionParser.parse!(args, strict: @switches)
 
     # 1. copy files
     paths = generator_paths()
@@ -44,7 +39,7 @@ defmodule Mix.Tasks.Phx.Gen.Tailwind do
       {:text, "package.json", "assets/package.json"},
       {:text, "tailwind.config.js", "assets/tailwind.config.js"}
     ]
-    Mix.Phoenix.copy_from(paths, "priv/templates/phx.gen.tailwind", opts, files)
+    Mix.Phoenix.copy_from(paths, "priv/templates/phx.gen.tailwind", [], files)
 
     # 2. add imports to CSS file
     inject_css_imports()
@@ -52,10 +47,10 @@ defmodule Mix.Tasks.Phx.Gen.Tailwind do
     # 3. add watcher to config/dev.exs
     inject_dev_config()
 
-    # 4. update 'assets.deploy' mix task
-    inject_assets_deploy()
+    # 4. update mix aliases
+    inject_mix_aliases()
 
-    # 4b. update  'setup' mix task
+    # remove css import from app.js
 
     # 5. run 'npm install'
   end
@@ -90,11 +85,11 @@ defmodule Mix.Tasks.Phx.Gen.Tailwind do
     end
   end
 
-  defp inject_assets_deploy() do
+  defp inject_mix_aliases() do
     file_path = "mix.exs"
     file = File.read!(file_path)
 
-    case Injector.assets_deploy_inject(file) do
+    case Injector.mix_aliases_inject(file) do
       {:ok, new_file} ->
         print_injecting(file_path)
         File.write!(file_path, new_file)
