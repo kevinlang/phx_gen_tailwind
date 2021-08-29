@@ -29,6 +29,24 @@ defmodule Mix.Phx.Gen.Tailwind.Injector do
     """
   end
 
+  def assets_deploy_inject(file) do
+    inject_unless_contains(
+      file,
+      ", \"cmd --cd assets npm install\"",
+
+
+      # Matches the entire line containing `anchor_line` and captures
+      # the whitespace before the anchor. In the replace string
+      #
+      # * the entire matching line, sans newline and last bracket, inserted with \\1
+      # * a comma is added, and appropriate newline added with \\2
+      # * the actual code is injected with &2
+      # * the appropriate closing bracket is injected using \\2
+      # * and the appropriate newline is injected using \\3
+      &Regex.replace(~r/^(\s*setup\:.*)(\],|\])(\r\n|\n|$)/Um, &1, "\\1#{&2}\\2\\3", global: false)
+    )
+  end
+
   @doc """
   Injects code unless the existing code already contains `code_to_inject`
   """

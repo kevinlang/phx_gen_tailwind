@@ -52,6 +52,9 @@ defmodule Mix.Tasks.Phx.Gen.Tailwind do
     inject_dev_config()
 
     # 4. update 'assets.deploy' mix task
+    inject_assets_deploy()
+
+    # 4b. update  'setup' mix task
 
     # 5. run 'npm install'
   end
@@ -82,6 +85,25 @@ defmodule Mix.Tasks.Phx.Gen.Tailwind do
       {:error, :unable_to_inject} ->
         Mix.shell().info("""
         UNABLE to inject dev/config.exs changes.
+        """)
+    end
+  end
+
+  defp inject_assets_deploy() do
+    file_path = "mix.exs"
+    file = File.read!(file_path)
+
+    case Injector.assets_deploy_inject(file) do
+      {:ok, new_file} ->
+        print_injecting(file_path)
+        File.write!(file_path, new_file)
+
+      :already_injected ->
+        :ok
+
+      {:error, :unable_to_inject} ->
+        Mix.shell().info("""
+        Unable to inject updated 'assets.deploy' alias
         """)
     end
   end
