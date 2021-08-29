@@ -76,6 +76,10 @@ defmodule Mix.Phx.Gen.Tailwind.Injector do
     """
   end
 
+  def js_css_import_remove(file) do
+    {:ok, String.replace(file, "import \"../css/app.css\"", &("// #{&1}"), global: false)}
+  end
+
   @doc """
   Injects code unless the existing code already contains `code_to_inject`
   """

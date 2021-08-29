@@ -51,6 +51,7 @@ defmodule Mix.Tasks.Phx.Gen.Tailwind do
     inject_mix_aliases()
 
     # remove css import from app.js
+    remove_js_css_import()
 
     # 5. run 'npm install'
   end
@@ -119,6 +120,25 @@ defmodule Mix.Tasks.Phx.Gen.Tailwind do
       {:error, :unable_to_inject} ->
         Mix.shell().info("""
         Unable to inject Tailwindcss imports into app.css
+        """)
+    end
+  end
+
+  defp remove_js_css_import() do
+    file_path = "assets/js/app.js"
+    file = File.read!(file_path)
+
+    case Injector.js_css_import_remove(file) do
+      {:ok, new_file} ->
+        print_injecting(file_path)
+        File.write!(file_path, new_file)
+
+      :already_injected ->
+        :ok
+
+      {:error, :unable_to_inject} ->
+        Mix.shell().info("""
+        Unable to remove css import from app.js
         """)
     end
   end
