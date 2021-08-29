@@ -1,7 +1,7 @@
 defmodule PhxGenTailwind.MixProject do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "0.1.0-rc.0"
   @url "https://github.com/kevinlang/phx_gen_tailwind"
 
   def project do
