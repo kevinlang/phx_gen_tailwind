@@ -7,10 +7,13 @@ defmodule PhxGenTailwind.MixProject do
   def project do
     [
       app: :phx_gen_tailwind,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      description: "Adds Tailwind to a new Phoenix 1.6+ application",
+      deps: deps(),
+      docs: docs(),
+      package: package()
     ]
   end
 
@@ -24,9 +27,24 @@ defmodule PhxGenTailwind.MixProject do
   defp deps do
     [
       {:phoenix, "1.6.0-rc.0"},
-      #{:phx_new, "1.6.0-rc.0", only: [:dev, :test]},
+
       # Docs dependencies
       {:ex_doc, "~> 0.20", only: :docs}
+    ]
+  end
+
+  defp docs do
+    [
+      source_ref: "v#{@version}",
+      source_url: @url
+    ]
+  end
+
+  defp package do
+    [
+      maintainers: ["Kevin Lang"],
+      licenses: ["Apache 2"],
+      links: %{"GitHub" => @url}
     ]
   end
 end
