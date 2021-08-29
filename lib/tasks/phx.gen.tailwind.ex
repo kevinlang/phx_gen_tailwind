@@ -54,6 +54,7 @@ defmodule Mix.Tasks.Phx.Gen.Tailwind do
     remove_js_css_import()
 
     # 5. run 'npm install'
+    maybe_run_npm_install()
   end
 
   defp generator_paths do
@@ -140,6 +141,14 @@ defmodule Mix.Tasks.Phx.Gen.Tailwind do
         Mix.shell().info("""
         Unable to remove css import from app.js
         """)
+    end
+  end
+
+  defp maybe_run_npm_install() do
+    if !!System.find_executable("npm") and Mix.shell().yes?("\nNPM install new dependencies?") do
+      cmd = "cd assets/ && npm install"
+      Mix.shell().info [:green, "* running ", :reset, cmd]
+      Mix.shell().cmd(cmd, [quiet: true])
     end
   end
 
