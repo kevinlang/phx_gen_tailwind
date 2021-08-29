@@ -2,10 +2,10 @@ defmodule Mix.Phx.Gen.Tailwind.Injector do
 
   @esbuild_watcher_anchor_line "esbuild: {Esbuild, :install_and_run"
 
-  def dev_config_inject(file) do
+  def dev_config_inject(file, context) do
     inject_unless_contains(
       file,
-      dev_config_code(),
+      dev_config_code(context),
       # Matches the entire line containing `anchor_line` and captures
       # the whitespace before the anchor. In the replace string
       #
@@ -17,17 +17,20 @@ defmodule Mix.Phx.Gen.Tailwind.Injector do
     )
   end
 
-  defp dev_config_code() do
+  defp dev_config_code(context) do
     """
         npx: [
           "tailwindcss",
           "--input=css/app.css",
           "--output=../priv/static/assets/app.css",
           "--watch",
-          cd: Path.expand("../assets", __DIR__)
+          cd: Path.expand("#{dev_config_cd_path(context)}", __DIR__)
         ]
     """
   end
+
+  defp dev_config_cd_path(%{in_umbrella?: false}), do: "../assets"
+  defp dev_config_cd_path(%{in_umbrella?: true, web_app_name: path}), do: "../apps/#{path}/assets"
 
   def mix_aliases_inject(file) do
     with {:ok, file} <- assets_deploy_inject(file),

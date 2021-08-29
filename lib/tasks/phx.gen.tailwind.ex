@@ -18,20 +18,25 @@ defmodule Mix.Tasks.Phx.Gen.Tailwind do
 
   use Mix.Task
 
-  alias Mix.Phoenix.Context
-  alias Mix.Tasks.Phx.Gen
+  #alias Mix.Phoenix.Context
+  #alias Mix.Tasks.Phx.Gen
   alias Mix.Phx.Gen.Tailwind.Injector
 
-  @switches [alpinejs: :boolean]
+  #@switches [alpinejs: :boolean]
 
   @impl true
-  def run(args, test_opts \\ []) do
+  def run(_args) do
     if Mix.Project.umbrella?() do
       Mix.raise "mix phx.gen.live must be invoked from within your *_web application root directory"
     end
     # from here on, we can assume we are at the web root directory
 
     #{opts, _parsed} = OptionParser.parse!(args, strict: @switches)
+
+    context = %{
+      web_app_name: Mix.Phoenix.otp_app(),
+      in_umbrella?: Mix.Phoenix.in_umbrella?(File.cwd!())
+    }
 
     # 1. copy files
     paths = generator_paths()
@@ -45,7 +50,7 @@ defmodule Mix.Tasks.Phx.Gen.Tailwind do
     inject_css_imports()
 
     # 3. add watcher to config/dev.exs
-    inject_dev_config()
+    inject_dev_config(context)
 
     # 4. update mix aliases
     inject_mix_aliases()
@@ -61,9 +66,9 @@ defmodule Mix.Tasks.Phx.Gen.Tailwind do
     [".", :phx_gen_tailwind]
   end
 
-  defp inject_dev_config() do
+  defp inject_dev_config(%{in_umbrella?: in_umbrella?} = context) do
     file_path =
-      if Mix.Phoenix.in_umbrella?(File.cwd!()) do
+      if in_umbrella? do
         Path.expand("../../")
       else
         File.cwd!()
@@ -72,7 +77,7 @@ defmodule Mix.Tasks.Phx.Gen.Tailwind do
 
     {:ok, file} = read_file(file_path)
 
-    case Injector.dev_config_inject(file) do
+    case Injector.dev_config_inject(file, context) do
       {:ok, new_file} ->
         print_injecting(file_path)
         File.write!(file_path, new_file)
