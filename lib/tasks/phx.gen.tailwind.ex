@@ -38,15 +38,62 @@ defmodule Mix.Tasks.Phx.Gen.Tailwind do
 
     {opts, _parsed} = OptionParser.parse!(args, strict: @switches)
 
+    # 1. copy files
     paths = generator_paths()
     files = [
       {:text, "package.json", "assets/package.json"},
       {:text, "tailwind.config.js", "assets/tailwind.config.js"}
     ]
     Mix.Phoenix.copy_from(paths, "priv/templates/phx.gen.tailwind", opts, files)
+
+    # 2. add imports to CSS file
+
+    # 3. add watcher to config/dev.exs
+    inject_dev_config()
+
+    # 4. update 'assets.deploy' mix task
+
+    # 5. run 'npm install'
   end
 
   defp generator_paths do
     [".", :phx_gen_tailwind]
+  end
+
+  defp inject_dev_config() do
+    file_path =
+      if Mix.Phoenix.in_umbrella?(File.cwd!()) do
+        Path.expand("../../")
+      else
+        File.cwd!()
+      end
+      |> Path.join("config/dev.exs")
+
+    {:ok, file} = read_file(file_path)
+
+    case Injector.dev_config_inject(file) do
+      {:ok, new_file} ->
+        print_injecting(file_path)
+        File.write!(file_path, new_file)
+
+      :already_injected ->
+        :ok
+
+      {:error, :unable_to_inject} ->
+        Mix.shell().info("""
+        UNABLE to inject dev/config.exs changes.
+        """)
+    end
+  end
+
+  defp read_file(file_path) do
+    case File.read(file_path) do
+      {:ok, file} -> {:ok, file}
+      {:error, reason} -> {:error, {:file_read_error, reason}}
+    end
+  end
+
+  defp print_injecting(file_path, suffix \\ []) do
+    Mix.shell().info([:green, "* injecting ", :reset, Path.relative_to_cwd(file_path), suffix])
   end
 end
