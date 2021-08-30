@@ -1,21 +1,32 @@
 # PhxGenTailwind
 
-**TODO: Add description**
+Adds Tailwind to your new Phoenix 1.6+ project
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `phx_gen_tailwind` to your list of dependencies in `mix.exs`:
+First, install it in your `mix.exs` file. If you have an umbrella setup,
+you should be installing it in your Phoenix app (`{name}_web`).
 
 ```elixir
 def deps do
   [
-    {:phx_gen_tailwind, "~> 0.1.0"}
+    {:phx_gen_tailwind, "~> 0.1.1-rc.0", only: :dev}
   ]
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/phx_gen_tailwind](https://hexdocs.pm/phx_gen_tailwind).
+Once installed, simply run `mix phx.gen.tailwind` from the root of your project.
+If you are in an umbrella setup, it should be run from the root of your web app.
 
+```
+$ mix phx.gen.tailwind
+* creating assets/package.json
+* creating assets/tailwind.config.js
+* injecting assets/css/app.css
+* injecting config/dev.exs
+* injecting mix.exs
+* injecting assets/js/app.js
+
+NPM install new dependencies? [Yn] 
+* running cd assets/ && npm install
+```
