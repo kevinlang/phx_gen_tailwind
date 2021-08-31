@@ -1,5 +1,4 @@
 defmodule Mix.Phx.Gen.Tailwind.Injector do
-
   @esbuild_watcher_anchor_line "esbuild: {Esbuild, :install_and_run"
 
   def dev_config_inject(file, context) do
@@ -13,7 +12,12 @@ defmodule Mix.Phx.Gen.Tailwind.Injector do
       # * a comma is added, and appropriate newline added with \\2
       # * the actual code is injected with &2,
       # * and the appropriate newline is injected using \\2
-      &Regex.replace(~r/^(\s*#{@esbuild_watcher_anchor_line}.*)(\r\n|\n|$)/Um, &1, "\\1,\\2#{&2}\\2", global: false)
+      &Regex.replace(
+        ~r/^(\s*#{@esbuild_watcher_anchor_line}.*)(\r\n|\n|$)/Um,
+        &1,
+        "\\1,\\2#{&2}\\2",
+        global: false
+      )
     )
   end
 
@@ -43,7 +47,6 @@ defmodule Mix.Phx.Gen.Tailwind.Injector do
     inject_unless_contains(
       file,
       "\"cmd --cd assets npm run deploy\", ",
-
       &Regex.replace(~r/^(.*"assets\.deploy"\: \[)(.*$)/Um, &1, "\\1#{&2}\\2", global: false)
     )
   end
@@ -66,8 +69,7 @@ defmodule Mix.Phx.Gen.Tailwind.Injector do
     inject_unless_contains(
       file,
       css_import_code(),
-      # todo, avoid injecting extra newline...
-      &String.replace(&1, "@import \"./phoenix.css\";", &2)
+      &handle_css_inject/2
     )
   end
 
@@ -79,8 +81,16 @@ defmodule Mix.Phx.Gen.Tailwind.Injector do
     """
   end
 
+  defp handle_css_inject(code, code_to_inject) do
+    if String.contains?(code, ~s(@import "./phoenix.css";)) do
+      String.replace(code, ~s(@import "./phoenix.css";), code_to_inject)
+    else
+      code_to_inject <> code
+    end
+  end
+
   def js_css_import_remove(file) do
-    {:ok, String.replace(file, "import \"../css/app.css\"", &("// #{&1}"), global: false)}
+    {:ok, String.replace(file, "import \"../css/app.css\"", &"// #{&1}", global: false)}
   end
 
   @doc """
@@ -88,7 +98,8 @@ defmodule Mix.Phx.Gen.Tailwind.Injector do
   """
   @spec inject_unless_contains(String.t(), String.t(), (String.t(), String.t() -> String.t())) ::
           {:ok, String.t()} | :already_injected | {:error, :unable_to_inject}
-  def inject_unless_contains(code, code_to_inject, inject_fn) when is_binary(code) and is_binary(code_to_inject) and is_function(inject_fn, 2) do
+  def inject_unless_contains(code, code_to_inject, inject_fn)
+      when is_binary(code) and is_binary(code_to_inject) and is_function(inject_fn, 2) do
     with :ok <- ensure_not_already_injected(code, code_to_inject) do
       new_code = inject_fn.(code, code_to_inject)
 

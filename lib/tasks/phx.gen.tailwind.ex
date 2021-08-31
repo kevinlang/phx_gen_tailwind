@@ -18,20 +18,23 @@ defmodule Mix.Tasks.Phx.Gen.Tailwind do
 
   use Mix.Task
 
-  #alias Mix.Phoenix.Context
-  #alias Mix.Tasks.Phx.Gen
+  # alias Mix.Phoenix.Context
+  # alias Mix.Tasks.Phx.Gen
   alias Mix.Phx.Gen.Tailwind.Injector
 
-  #@switches [alpinejs: :boolean]
+  # @switches [alpinejs: :boolean]
 
   @impl true
   def run(_args) do
     if Mix.Project.umbrella?() do
-      Mix.raise "mix phx.gen.live must be invoked from within your *_web application root directory"
+      Mix.raise(
+        "mix phx.gen.live must be invoked from within your *_web application root directory"
+      )
     end
+
     # from here on, we can assume we are at the web root directory
 
-    #{opts, _parsed} = OptionParser.parse!(args, strict: @switches)
+    # {opts, _parsed} = OptionParser.parse!(args, strict: @switches)
 
     context = %{
       web_app_name: Mix.Phoenix.otp_app(),
@@ -40,10 +43,12 @@ defmodule Mix.Tasks.Phx.Gen.Tailwind do
 
     # 1. copy files
     paths = generator_paths()
+
     files = [
       {:text, "package.json", "assets/package.json"},
       {:text, "tailwind.config.js", "assets/tailwind.config.js"}
     ]
+
     Mix.Phoenix.copy_from(paths, "priv/templates/phx.gen.tailwind", [], files)
 
     # 2. add imports to CSS file
@@ -152,8 +157,8 @@ defmodule Mix.Tasks.Phx.Gen.Tailwind do
   defp maybe_run_npm_install() do
     if !!System.find_executable("npm") and Mix.shell().yes?("\nNPM install new dependencies?") do
       cmd = "cd assets/ && npm install"
-      Mix.shell().info [:green, "* running ", :reset, cmd]
-      Mix.shell().cmd(cmd, [quiet: true])
+      Mix.shell().info([:green, "* running ", :reset, cmd])
+      Mix.shell().cmd(cmd, quiet: true)
     end
   end
 
