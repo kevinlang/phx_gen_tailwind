@@ -10,7 +10,7 @@ you should be installing it in your Phoenix app (`{name}_web`).
 ```elixir
 def deps do
   [
-    {:phx_gen_tailwind, "~> 0.1.1-rc.0", only: :dev}
+    {:phx_gen_tailwind, "~> 0.1.2-rc.0", only: :dev}
   ]
 end
 ```
