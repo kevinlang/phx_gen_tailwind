@@ -16,9 +16,9 @@ defmodule Mix.Phx.Gen.Tailwind.InjectorTest do
 
       assert injected === """
              /* This file is for your main application CSS */
-             @import "tailwindcss/base";
-             @import "tailwindcss/components";
-             @import "tailwindcss/utilities";
+             @tailwind base;
+             @tailwind components;
+             @tailwind utilities;
 
 
              /* Alerts and form errors used by phx.new */
@@ -39,9 +39,9 @@ defmodule Mix.Phx.Gen.Tailwind.InjectorTest do
       {:ok, injected} = Injector.css_import_inject(input)
 
       assert injected === """
-             @import "tailwindcss/base";
-             @import "tailwindcss/components";
-             @import "tailwindcss/utilities";
+             @tailwind base;
+             @tailwind components;
+             @tailwind utilities;
              /* Alerts and form errors used by phx.new */
              .alert {
                padding: 15px;
@@ -59,18 +59,18 @@ defmodule Mix.Phx.Gen.Tailwind.InjectorTest do
 
       assert injected ===
                """
-               @import "tailwindcss/base";
-               @import "tailwindcss/components";
-               @import "tailwindcss/utilities";
+               @tailwind base;
+               @tailwind components;
+               @tailwind utilities;
                """
     end
 
     test "handles injected code already present" do
       input = """
       /* This file is for your main application CSS */
-      @import "tailwindcss/base";
-      @import "tailwindcss/components";
-      @import "tailwindcss/utilities";
+      @tailwind base;
+      @tailwind components;
+      @tailwind utilities;
 
       /* Alerts and form errors used by phx.new */
       """

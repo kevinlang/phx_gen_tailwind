@@ -75,9 +75,9 @@ defmodule Mix.Phx.Gen.Tailwind.Injector do
 
   defp css_import_code() do
     """
-    @import "tailwindcss/base";
-    @import "tailwindcss/components";
-    @import "tailwindcss/utilities";
+    @tailwind base;
+    @tailwind components;
+    @tailwind utilities;
     """
   end
 
